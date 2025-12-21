@@ -3,7 +3,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
-
+import { ProjectsModule } from './modules/projects/projects.module';
+import { DynamicEngineModule } from './modules/dynamic-engine/dynamic-engine.module';
 @Module({
     imports: [
         ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
@@ -23,6 +24,8 @@ import { AuthModule } from './modules/auth/auth.module';
         }),
         UsersModule,
         AuthModule,
+        ProjectsModule,
+        DynamicEngineModule,
     ],
     controllers: [],
     providers: [],
