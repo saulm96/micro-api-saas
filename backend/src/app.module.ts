@@ -3,7 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
-
+import { ProjectsModule } from './modules/projects/projects.module';
 @Module({
     imports: [
         ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
@@ -23,6 +23,7 @@ import { AuthModule } from './modules/auth/auth.module';
         }),
         UsersModule,
         AuthModule,
+        ProjectsModule,
     ],
     controllers: [],
     providers: [],
