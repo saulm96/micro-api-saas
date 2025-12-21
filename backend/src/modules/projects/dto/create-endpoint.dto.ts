@@ -4,7 +4,7 @@ import { ActionType } from '../entities/endpoint.entity'; // Importamos el Enum
 export class CreateEndpointDto {
     @IsNotEmpty()
     @IsString()
-    @Matches(/^\/[a-zA-Z0-9\-\/_:]+$/, { message: 'El path debe empezar con / y ser una URL válida' })
+    @Matches(/^\/[a-zA-Z0-9\-\/_:]+$/, { message: 'Path must start with / and be a valid URL' })
     path: string;
 
     @IsNotEmpty()
@@ -16,7 +16,7 @@ export class CreateEndpointDto {
     description?: string;
 
     @IsNotEmpty()
-    @IsEnum(ActionType, { message: 'El actionType debe ser MOCK_RESPONSE, DB_INSERT o DB_QUERY' })
+    @IsEnum(ActionType, { message: 'Please insert a valid action type format' })
     actionType: ActionType;
 
     @IsOptional()

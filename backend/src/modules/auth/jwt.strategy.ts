@@ -21,7 +21,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         const user = await this.usersService.findOneByEmail(payload.email);
 
         if (!user || !user.isActive) {
-            throw new UnauthorizedException('Usuario no encontrado o inactivo');
+            throw new UnauthorizedException('Invalid token');
         }
 
         return { id: user.id, email: user.email };
