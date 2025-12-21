@@ -1,10 +1,10 @@
-import { IsNotEmpty, IsString, IsEnum, Matches, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsString, IsEnum, Matches, IsOptional, IsObject } from 'class-validator';
+import { ActionType } from '../entities/endpoint.entity'; // Importamos el Enum
 
 export class CreateEndpointDto {
     @IsNotEmpty()
     @IsString()
-    //REGEX FOR VALIDATING PATH (STARTS WITH / AND ONLY CONTAINS /, a-z, A-Z, 0-9, -)
-    @Matches(/^\/[a-zA-Z0-9\-\/_:]+$/, { message: 'Path must start with / and be a valid URL (e.g: /users)' })
+    @Matches(/^\/[a-zA-Z0-9\-\/_:]+$/, { message: 'El path debe empezar con / y ser una URL válida' })
     path: string;
 
     @IsNotEmpty()
@@ -14,4 +14,12 @@ export class CreateEndpointDto {
     @IsOptional()
     @IsString()
     description?: string;
+
+    @IsNotEmpty()
+    @IsEnum(ActionType, { message: 'El actionType debe ser MOCK_RESPONSE, DB_INSERT o DB_QUERY' })
+    actionType: ActionType;
+
+    @IsOptional()
+    @IsObject()
+    actionData?: any;
 }
