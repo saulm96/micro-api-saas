@@ -29,15 +29,21 @@ export class VirtualDbService {
     }
 
     // (Optional for now) Read items for the future
-    async findAllItems(projectId: string, collectionName: string) {
+    async findAllItems(projectId: string, collectionName: string, filters: any = {}) {
         const collection = await this.collectionModel.findOne({
             where: { projectId, name: collectionName },
         });
 
         if (!collection) return [];
 
+        const whereClause: any = { collectionId: collection.id };
+
+        if (Object.keys(filters).length > 0) {
+            whereClause.data = filters;
+        }
+
         return this.itemModel.findAll({
-            where: { collectionId: collection.id },
+            where: whereClause,
             order: [['createdAt', 'DESC']],
         });
     }
