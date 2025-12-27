@@ -6,6 +6,9 @@ export enum ActionType {
     MOCK_RESPONSE = 'MOCK_RESPONSE',
     DB_INSERT = 'DB_INSERT',
     DB_QUERY = 'DB_QUERY',
+    DB_SELECT = 'DB_SELECT',
+    DB_UPDATE = 'DB_UPDATE',
+    DB_DELETE = 'DB_DELETE',
 }
 
 
