@@ -29,16 +29,50 @@ export class VirtualDbService {
     }
 
     // (Optional for now) Read items for the future
-    async findAllItems(projectId: string, collectionName: string) {
+    async findAllItems(projectId: string, collectionName: string, filters: any = {}) {
         const collection = await this.collectionModel.findOne({
             where: { projectId, name: collectionName },
         });
 
         if (!collection) return [];
 
+        const whereClause: any = { collectionId: collection.id };
+
+        if (Object.keys(filters).length > 0) {
+            whereClause.data = filters;
+        }
+
         return this.itemModel.findAll({
-            where: { collectionId: collection.id },
+            where: whereClause,
             order: [['createdAt', 'DESC']],
         });
+    }
+
+    //UPDATE an item in a collection
+    async updateItem(projectId: string, collectionName: string, id: string, newData: any) {
+        const collection = await this.collectionModel.findOne({
+            where: { projectId, name: collectionName },
+        })
+        if (!collection) return null;
+        const item = await this.itemModel.findOne({
+            where: { id, collectionId: collection.id }
+        })
+        if (!item) return null;
+        return item.update({ data: newData });
+    }
+
+    //DELETE an item in a collection
+    async deleteItem(projectId: string, collectionName: string, id: string): Promise<boolean> {
+        const collection = await this.collectionModel.findOne({
+            where: { projectId, name: collectionName },
+        });
+
+        if (!collection) return false;
+
+        const deletedCount = await this.itemModel.destroy({
+            where: { id, collectionId: collection.id },
+        });
+
+        return deletedCount > 0; // RETURNS TRUE IF DELETED
     }
 }
