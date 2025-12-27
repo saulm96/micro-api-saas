@@ -1,4 +1,4 @@
-import { Controller, All, Param, Req, Body, Res } from '@nestjs/common';
+import { Controller, All, Param, Req, Body, Res, Query } from '@nestjs/common';
 import { DynamicEngineService } from './dynamic-engine.service';
 import { Request, Response } from 'express';
 
@@ -12,11 +12,12 @@ export class DynamicEngineController {
         @Req() req: Request,
         @Res() res: Response, // Inject the Express response
         @Body() body: any,
+        @Query() queryParams: any,
     ) {
         const endpointPath = req.params[0];
         const method = req.method;
 
-        const result = await this.engineService.executeRequest(projectId, endpointPath, method, body) as any;
+        const result = await this.engineService.executeRequest(projectId, endpointPath, method, body, queryParams) as any;
 
         // If it's a mock, we extract the dynamic status code
         if (result._isMock) {

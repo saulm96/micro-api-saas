@@ -12,7 +12,7 @@ export class DynamicEngineService {
         private virtualDbService: VirtualDbService,
     ) { }
 
-    async executeRequest(projectId: string, path: string, method: string, body: any) {
+    async executeRequest(projectId: string, path: string, method: string, body: any, query: any = {}) {
         // Validate project
         const project = await this.projectModel.findByPk(projectId);
         if (!project) throw new NotFoundException('Project not found');
@@ -36,7 +36,7 @@ export class DynamicEngineService {
                 return this.handleDbInsert(projectId, endpoint.actionData, body);
 
             case ActionType.DB_SELECT:
-                return this.handleDbSelect(projectId, endpoint.actionData);
+                return this.handleDbSelect(projectId, endpoint.actionData, query);
 
             default:
                 return { message: 'Acción no soportada todavía' };
@@ -56,14 +56,12 @@ export class DynamicEngineService {
 
     // Handle DB Insert logic in the virtual db
     private async handleDbInsert(projectId: string, actionData: any, reqBody: any) {
-        // Validamos que el usuario haya configurado dónde guardar los datos
         const collectionName = actionData?.collection;
 
         if (!collectionName) {
             throw new BadRequestException('Configuración inválida: Falta "collection" en actionData');
         }
 
-        // Save the body of the request in the collection
         const savedItem = await this.virtualDbService.insertItem(projectId, collectionName, reqBody);
 
         return {
@@ -75,19 +73,19 @@ export class DynamicEngineService {
         };
     }
 
-    private async handleDbSelect(projectId: string, actionData: any) {
+    private async handleDbSelect(projectId: string, actionData: any, queryFilters: any) {
         const collectionName = actionData?.collection;
 
         if (!collectionName) {
             throw new BadRequestException('Configuración inválida: Falta "collection" en actionData');
         }
 
-        // Llamamos al método que ya dejamos preparado en el VirtualDbService
-        const items = await this.virtualDbService.findAllItems(projectId, collectionName);
+        const items = await this.virtualDbService.findAllItems(projectId, collectionName, queryFilters);
 
         return {
             collection: collectionName,
             count: items.length,
+            filter_applied: queryFilters,
             results: items.map(item => ({
                 id: item.id,
                 data: item.data,
