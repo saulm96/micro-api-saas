@@ -47,4 +47,32 @@ export class VirtualDbService {
             order: [['createdAt', 'DESC']],
         });
     }
+
+    //UPDATE an item in a collection
+    async updateItem(projectId: string, collectionName: string, id: string, newData: any) {
+        const collection = await this.collectionModel.findOne({
+            where: { projectId, name: collectionName },
+        })
+        if (!collection) return null;
+        const item = await this.itemModel.findOne({
+            where: { id, collectionId: collection.id }
+        })
+        if (!item) return null;
+        return item.update({ data: newData });
+    }
+
+    //DELETE an item in a collection
+    async deleteItem(projectId: string, collectionName: string, id: string): Promise<boolean> {
+        const collection = await this.collectionModel.findOne({
+            where: { projectId, name: collectionName },
+        });
+
+        if (!collection) return false;
+
+        const deletedCount = await this.itemModel.destroy({
+            where: { id, collectionId: collection.id },
+        });
+
+        return deletedCount > 0; // RETURNS TRUE IF DELETED
+    }
 }
