@@ -38,6 +38,12 @@ export class DynamicEngineService {
             case ActionType.DB_SELECT:
                 return this.handleDbSelect(projectId, endpoint.actionData, query);
 
+            case ActionType.DB_UPDATE:
+                return this.handleDbUpdate(projectId, endpoint.actionData, query, body);
+
+            case ActionType.DB_DELETE:
+                return this.handleDbDelete(projectId, endpoint.actionData, query);
+
             default:
                 return { message: 'Acción no soportada todavía' };
         }
@@ -91,6 +97,46 @@ export class DynamicEngineService {
                 data: item.data,
                 created_at: item.createdAt
             }))
+        };
+    }
+    private async handleDbUpdate(projectId: string, actionData: any, query: any, body: any) {
+        const collectionName = actionData?.collection;
+        const id = query?.id; // Esperamos ?id=XXXX
+
+        if (!collectionName || !id) {
+            throw new BadRequestException('Falta "collection" en config o "id" en los parámetros query');
+        }
+
+        const updatedItem = await this.virtualDbService.updateItem(projectId, collectionName, id, body);
+
+        if (!updatedItem) {
+            throw new NotFoundException('Item no encontrado para actualizar');
+        }
+
+        return {
+            status: 'updated',
+            id: updatedItem.id,
+            data: updatedItem.data
+        };
+    }
+
+    private async handleDbDelete(projectId: string, actionData: any, query: any) {
+        const collectionName = actionData?.collection;
+        const id = query?.id; // Esperamos ?id=XXXX
+
+        if (!collectionName || !id) {
+            throw new BadRequestException('Falta "collection" en config o "id" en los parámetros query');
+        }
+
+        const wasDeleted = await this.virtualDbService.deleteItem(projectId, collectionName, id);
+
+        if (!wasDeleted) {
+            throw new NotFoundException('Item no encontrado o ya borrado');
+        }
+
+        return {
+            status: 'deleted',
+            id: id
         };
     }
 }
