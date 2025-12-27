@@ -45,7 +45,7 @@ export class DynamicEngineService {
                 return this.handleDbDelete(projectId, endpoint.actionData, query);
 
             default:
-                return { message: 'Acción no soportada todavía' };
+                return { message: 'Unsupported action type' };
         }
     }
 
@@ -65,7 +65,7 @@ export class DynamicEngineService {
         const collectionName = actionData?.collection;
 
         if (!collectionName) {
-            throw new BadRequestException('Configuración inválida: Falta "collection" en actionData');
+            throw new BadRequestException('Invalid configuration: Missing "collection" in actionData');
         }
 
         const savedItem = await this.virtualDbService.insertItem(projectId, collectionName, reqBody);
@@ -83,7 +83,7 @@ export class DynamicEngineService {
         const collectionName = actionData?.collection;
 
         if (!collectionName) {
-            throw new BadRequestException('Configuración inválida: Falta "collection" en actionData');
+            throw new BadRequestException('Invalid configuration: Missing "collection" in actionData');
         }
 
         const items = await this.virtualDbService.findAllItems(projectId, collectionName, queryFilters);
@@ -104,13 +104,13 @@ export class DynamicEngineService {
         const id = query?.id; // Esperamos ?id=XXXX
 
         if (!collectionName || !id) {
-            throw new BadRequestException('Falta "collection" en config o "id" en los parámetros query');
+            throw new BadRequestException('Invalid configuration: Missing "collection" in actionData or "id" in query parameters');
         }
 
         const updatedItem = await this.virtualDbService.updateItem(projectId, collectionName, id, body);
 
         if (!updatedItem) {
-            throw new NotFoundException('Item no encontrado para actualizar');
+            throw new NotFoundException('Item not found');
         }
 
         return {
@@ -125,13 +125,13 @@ export class DynamicEngineService {
         const id = query?.id; // Esperamos ?id=XXXX
 
         if (!collectionName || !id) {
-            throw new BadRequestException('Falta "collection" en config o "id" en los parámetros query');
+            throw new BadRequestException('Invalid configuration: Missing "collection" in actionData or "id" in query parameters');
         }
 
         const wasDeleted = await this.virtualDbService.deleteItem(projectId, collectionName, id);
 
         if (!wasDeleted) {
-            throw new NotFoundException('Item no encontrado o ya borrado');
+            throw new NotFoundException('Item not found or already deleted');
         }
 
         return {
