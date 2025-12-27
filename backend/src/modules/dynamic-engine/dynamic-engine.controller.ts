@@ -1,23 +1,29 @@
-import { Controller, All, Param, Req, Body, RequestMethod } from '@nestjs/common';
+import { Controller, All, Param, Req, Body, Res } from '@nestjs/common';
 import { DynamicEngineService } from './dynamic-engine.service';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 
 @Controller('run')
 export class DynamicEngineController {
     constructor(private readonly engineService: DynamicEngineService) { }
 
-    //ALL gets GET; POST, PUT, DELETE and PATCH
     @All(':projectId/*')
     async handleRequest(
         @Param('projectId') projectId: string,
         @Req() req: Request,
-        @Body() body: any
+        @Res() res: Response, // Inject the Express response
+        @Body() body: any,
     ) {
-        //req.params[0] contains the asterisk part of the path (everything after the /run)
-        //Example: /run/123/users/create => projectId = 123, path = users/create
         const endpointPath = req.params[0];
         const method = req.method;
 
-        return this.engineService.executeRequest(projectId, endpointPath, method, body);
+        const result = await this.engineService.executeRequest(projectId, endpointPath, method, body) as any;
+
+        // If it's a mock, we extract the dynamic status code
+        if (result._isMock) {
+            return res.status(result._statusCode).json(result.data);
+        }
+
+        // Generic response for other cases
+        return res.status(200).json(result);
     }
 }

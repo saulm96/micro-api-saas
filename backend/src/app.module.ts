@@ -5,6 +5,7 @@ import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ProjectsModule } from './modules/projects/projects.module';
 import { DynamicEngineModule } from './modules/dynamic-engine/dynamic-engine.module';
+import { VirtualDbModule } from './modules/virtual-db/virtual-db.module';
 @Module({
     imports: [
         ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
@@ -26,6 +27,7 @@ import { DynamicEngineModule } from './modules/dynamic-engine/dynamic-engine.mod
         AuthModule,
         ProjectsModule,
         DynamicEngineModule,
+        VirtualDbModule,
     ],
     controllers: [],
     providers: [],
