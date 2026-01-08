@@ -1,11 +1,11 @@
-import { Column, DataType, Model, Table, ForeignKey, BelongsTo, HasMany, AllowNull } from 'sequelize-typescript';
-import { User } from '../../users/entities/user.entity';
+import { Column, DataType, Model, Table, HasMany } from 'sequelize-typescript';
 import { Endpoint } from './endpoint.entity';
+import { ApiKey } from './api-key.entity';
 
 interface ProjectCreationAttrs {
     name: string;
-    userId: string;
     description?: string;
+    userId: string;
 }
 
 @Table({ tableName: 'projects', timestamps: true })
@@ -17,27 +17,21 @@ export class Project extends Model<Project, ProjectCreationAttrs> {
     })
     id: string;
 
-    @Column({
-        type: DataType.STRING,
-        allowNull: false,
-    })
+    @Column
     name: string;
 
-    @Column({
-        type: DataType.STRING,
-        allowNull: false,
-    })
+    @Column
     description: string;
 
-    //USER REALATIONSHIP
-    @ForeignKey(() => User)
-    @Column({ type: DataType.UUID, allowNull: false })
+    @Column({
+        type: DataType.UUID,
+        allowNull: false,
+    })
     userId: string;
 
-    @BelongsTo(() => User)
-    user: User;
-
-    //ENDPOINT RELATIONSHIP (ONE PROJECT CAN HAVE MANY ENDPOINTS)
     @HasMany(() => Endpoint)
     endpoints: Endpoint[];
+
+    @HasMany(() => ApiKey)
+    apiKeys: ApiKey[];
 }
