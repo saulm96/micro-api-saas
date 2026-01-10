@@ -1,32 +1,26 @@
-import { Controller, All, Req, Res } from '@nestjs/common';
-import { InjectModel } from '@nestjs/sequelize';
-import { ApiKey } from '../projects/entities/api-key.entity';
+import { Controller, All, Req, Res, UseGuards } from '@nestjs/common';
 import { DynamicEngineService } from '../dynamic-engine/dynamic-engine.service';
+import { ApiKeyGuard } from './guards/api-key.guard';
 
 @Controller('mock')
 export class PublicApiController {
-    constructor(
-        @InjectModel(ApiKey) private apiKeyModel: typeof ApiKey,
-        private readonly engineService: DynamicEngineService
-    ) { }
+    constructor(private readonly engineService: DynamicEngineService) { }
 
     @All('*')
+    @UseGuards(ApiKeyGuard)
     async handleRequest(@Req() req: any, @Res() res: any) {
-        const apiKey = req.headers['x-api-key'];
-        if (!apiKey) return res.status(401).json({ error: 'Missing x-api-key header' });
 
-        const keyRecord = await this.apiKeyModel.findOne({ where: { key: apiKey } });
-        if (!keyRecord) return res.status(401).json({ error: 'Invalid API Key' });
+        const projectId = req['project_id'];
 
         const cleanPath = req.path.replace(/.*\/mock/, '') || '/';
 
         try {
             const result = await this.engineService.executeRequest(
-                keyRecord.projectId,
+                projectId,
                 cleanPath,
                 req.method,
                 req.body,
-                req.query
+                req.query,
             ) as any;
 
             if (result._isMock) {
@@ -34,11 +28,10 @@ export class PublicApiController {
             }
 
             return res.status(200).json(result);
-
         } catch (error) {
             const status = error.status || 500;
             return res.status(status).json({
-                error: error.message || 'Internal Execution Error'
+                error: error.message || 'Internal Execution Error',
             });
         }
     }
