@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards, Request } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { CreateEndpointDto } from './dto/create-endpoint.dto';
+import { ProjectOwnershipGuard } from './guards/project-ownership.guard';
 
 @Controller('projects')
 @UseGuards(AuthGuard('jwt'))
@@ -23,9 +24,30 @@ export class ProjectsController {
         return this.projectsService.findAllProjects(req.user.id);
     }
 
+    //UPDATE name and description of project
+    //PATCH /api/v1/projects/:id
+    @Patch(':id')
+    @UseGuards(ProjectOwnershipGuard)
+    updateProject(
+        @Request() req: any,
+        @Param('id') id: string,
+        @Body() updateData: any // Ideally use UpdateProjectDto
+    ) {
+        return this.projectsService.updateProject(req.user.id, id, updateData);
+    }
+
+    // DELETE PROJECT
+    // DELETE /api/v1/projects/:id
+    @Delete(':id')
+    @UseGuards(ProjectOwnershipGuard)
+    deleteProject(@Request() req: any, @Param('id') id: string) {
+        return this.projectsService.deleteProject(req.user.id, id);
+    }
+
     // CREATE ENDPOINT
     // POST /api/v1/projects/:projectId/endpoints
     @Post(':projectId/endpoints')
+    @UseGuards(ProjectOwnershipGuard)
     createEndpoint(
         @Request() req: any,
         @Param('projectId') projectId: string,
@@ -34,13 +56,26 @@ export class ProjectsController {
         return this.projectsService.createEndpoint(req.user.id, projectId, createEndpointDto);
     }
 
-    //  GET ENDPOINTS
+    // GET ENDPOINTS
     // GET /api/v1/projects/:projectId/endpoints
     @Get(':projectId/endpoints')
+    @UseGuards(ProjectOwnershipGuard)
     findAllEndpoints(
         @Request() req: any,
         @Param('projectId') projectId: string,
     ) {
         return this.projectsService.findAllEndpoints(req.user.id, projectId);
+    }
+
+    // CREATE API KEY
+    // POST /api/v1/projects/:projectId/keys
+    @Post(':projectId/keys')
+    @UseGuards(ProjectOwnershipGuard)
+    async createApiKey(
+        @Request() req: any,
+        @Param('projectId') projectId: string,
+        @Body('name') name: string,
+    ) {
+        return this.projectsService.generateApiKey(req.user.id, projectId, name || 'Sin nombre');
     }
 }

@@ -11,7 +11,8 @@ import { VirtualDbModule } from '../virtual-db/virtual-db.module'
         SequelizeModule.forFeature([Project, Endpoint]),
         VirtualDbModule],
     controllers: [DynamicEngineController],
-    providers: [DynamicEngineService]
+    providers: [DynamicEngineService],
+    exports: [DynamicEngineService]
 
 })
 
